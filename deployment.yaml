@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: student-management-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: student-management-app
+
+  template:
+    metadata:
+      labels:
+        app: student-management-app
+
+    spec:
+      containers:
+        - name: student-management-app
+          image: sugamkuma567/student-management-app:latest
+
+          ports:
+            - containerPort: 8081
