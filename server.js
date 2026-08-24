@@ -2,7 +2,7 @@ const express = require("express");
 
 const app = express();
 
-const PORT = 8081;
+const PORT = 8082;
 
 // Middleware
 app.use(express.json());
@@ -61,7 +61,7 @@ app.post("/api/students", (req, res) => {
 
     const newStudent = {
         id: students.length > 0
-            ? students[students.length - 1].id + 1
+            ? Math.max(...students.map(student => student.id)) + 1
             : 1,
         name,
         email,
@@ -123,6 +123,6 @@ app.put("/api/students/:id", (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
 });
