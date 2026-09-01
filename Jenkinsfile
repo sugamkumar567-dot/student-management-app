@@ -1,8 +1,10 @@
+```groovy
 pipeline {
     agent any
 
     environment {
         DOCKER_IMAGE = "sugamkuma567/student-management-app"
+        DOCKER_CREDENTIALS = "dockerhub-creds"
     }
 
     stages {
@@ -21,11 +23,19 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push to Docker Hub') {
             steps {
-                bat '''
-                docker push %DOCKER_IMAGE%:%BUILD_NUMBER%
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat '''
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker push %DOCKER_IMAGE%:%BUILD_NUMBER%
+                    docker logout
+                    '''
+                }
             }
         }
 
@@ -42,8 +52,20 @@ pipeline {
                 bat '''
                 kubectl rollout status deployment/student-management-app
                 kubectl get pods
+                kubectl get deployment student-management-app
                 '''
             }
         }
     }
+
+    post {
+        success {
+            echo 'CI/CD Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check the console output.'
+        }
+    }
 }
+```
